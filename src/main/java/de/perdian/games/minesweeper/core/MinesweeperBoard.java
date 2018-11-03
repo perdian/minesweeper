@@ -1,5 +1,7 @@
 package de.perdian.games.minesweeper.core;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -14,16 +16,19 @@ public class MinesweeperBoard {
 
     private int height = 0;
     private int width = 0;
+    private int numberOfMines = 0;
     private MinesweeperCell[][] cellArray = null;
     private MinesweeperCellRevelation[][] cellRevelationArray = null;
     private Set<MinesweeperCell> hiddenCells = null;
     private List<MinesweeperCell> revealedCells = null;
-    private MinesweeperCell hitCell = null;
     private List<MinesweeperCellRevelationListener> cellRevelationListeners = null;
+    private MinesweeperBoardState boardState = MinesweeperBoardState.RUNNING;
 
-    MinesweeperBoard(int height, int width) {
+    MinesweeperBoard(int height, int width, int numberOfMines) {
         this.setHeight(height);
         this.setWidth(width);
+        this.setNumberOfMines(numberOfMines);
+        this.setCellRevelationArray(new MinesweeperCellRevelation[height][width]);
         this.setCellRevelationListeners(new CopyOnWriteArrayList<>());
     }
 
@@ -44,9 +49,9 @@ public class MinesweeperBoard {
 
         if (revelationCell != null) {
             return revelationCell;
-        } else if (this.getHitCell() != null) {
+        } else if (MinesweeperBoardState.COMPLETED_BOMB_HIT.equals(this.getBoardState())) {
             throw new IllegalStateException("Bomb has been hit, the game is over!");
-        } else if (this.getHiddenCells().isEmpty()) {
+        } else if (MinesweeperBoardState.COMPLETED_WON.equals(this.getBoardState())) {
             throw new IllegalStateException("All cells have been revealed, the game is over!");
         } else {
             return this.revealCell(this.getCellArray()[y][x]);
@@ -55,7 +60,7 @@ public class MinesweeperBoard {
     }
 
     MinesweeperCellRevelation revealCell(MinesweeperCell cell) {
-        if (cell.isBomb()) {
+        if (cell.isMined()) {
             return this.revealCellForHit(cell);
         } else {
             return this.revealCellForMiss(cell);
@@ -63,11 +68,112 @@ public class MinesweeperBoard {
     }
 
     private MinesweeperCellRevelation revealCellForHit(MinesweeperCell cell) {
-        throw new UnsupportedOperationException();
+
+        MinesweeperCellRevelation cellRevelation = new MinesweeperCellRevelation(this, cell);
+        cellRevelation.setMined(true);
+        cellRevelation.setRevelationType(MinesweeperCellRevelationType.MANUALLY);
+        this.setBoardState(MinesweeperBoardState.COMPLETED_BOMB_HIT);
+        this.getRevealedCells().add(cell);
+        this.getHiddenCells().remove(cell);
+        this.getCellRevelationListeners().forEach(listener -> listener.cellRevealed(cellRevelation));
+
+        // The game is finished, so we reveal all currently unrevealed cells
+        for (MinesweeperCell unrevealedCell : new ArrayList<>(this.getHiddenCells())) {
+            MinesweeperCellRevelation additionalRevelation = new MinesweeperCellRevelation(this, unrevealedCell);
+            additionalRevelation.setNeighboringMines(unrevealedCell.isMined() ? 0 : this.computeNumberOfNeighboringMinesAtPosition(unrevealedCell.getPosition()));
+            additionalRevelation.setMined(unrevealedCell.isMined());
+            additionalRevelation.setRevelationType(MinesweeperCellRevelationType.GAME_ENDED);
+            this.getRevealedCells().add(unrevealedCell);
+            this.getHiddenCells().remove(unrevealedCell);
+            this.getCellRevelationListeners().forEach(listener -> listener.cellRevealed(additionalRevelation));
+        }
+
+        return cellRevelation;
+
     }
 
     private MinesweeperCellRevelation revealCellForMiss(MinesweeperCell cell) {
-        throw new UnsupportedOperationException();
+
+        MinesweeperCellRevelation cellRevelation = new MinesweeperCellRevelation(this, cell);
+        cellRevelation.setMined(false);
+        cellRevelation.setNeighboringMines(this.computeNumberOfNeighboringMinesAtPosition(cell.getPosition()));
+        cellRevelation.setRevelationType(MinesweeperCellRevelationType.MANUALLY);
+        this.getRevealedCells().add(cell);
+        this.getHiddenCells().remove(cell);
+        this.setBoardState(this.getHiddenCells().size() == this.getNumberOfMines() ? MinesweeperBoardState.COMPLETED_WON : MinesweeperBoardState.RUNNING);
+        this.getCellRevelationListeners().forEach(listener -> listener.cellRevealed(cellRevelation));
+
+        if (MinesweeperBoardState.RUNNING.equals(this.getBoardState())) {
+
+            // Reveal all adjacent cells that have a nearby bomb count of 0
+            this.revealAdjacentCellsIfNoMines(cell);
+
+        } else {
+
+            // Reveal all remaining cells as we're done!
+            for (MinesweeperCell remainingCell : new ArrayList<>(this.getHiddenCells())) {
+                MinesweeperCellRevelation remainingRevelation = new MinesweeperCellRevelation(this, remainingCell);
+                remainingRevelation.setMined(true);
+                remainingRevelation.setRevelationType(MinesweeperCellRevelationType.GAME_ENDED);
+                this.getRevealedCells().add(remainingCell);
+                this.getHiddenCells().add(remainingCell);
+                this.getCellRevelationListeners().forEach(listener -> listener.cellRevealed(remainingRevelation));
+            }
+
+        }
+
+        return cellRevelation;
+
+    }
+
+    private void revealAdjacentCellsIfNoMines(MinesweeperCell cell) {
+        if (this.computeNumberOfNeighboringMinesAtPosition(cell.getPosition()) == 0) {
+            for (MinesweeperCellPosition adjacentPosition : this.computeAdjacentCellPositions(cell.getPosition(), false)) {
+                MinesweeperCell adjacentCell = this.getCellArray()[adjacentPosition.getY()][adjacentPosition.getX()];
+                if (!adjacentCell.isMined() && this.getHiddenCells().contains(adjacentCell)) {
+                    int autoRevelationMinesNearby = this.computeNumberOfNeighboringMinesAtPosition(adjacentPosition);
+                    MinesweeperCellRevelation autoRevelation = new MinesweeperCellRevelation(this, adjacentCell);
+                    autoRevelation.setMined(false);
+                    autoRevelation.setNeighboringMines(autoRevelationMinesNearby);
+                    autoRevelation.setRevelationType(MinesweeperCellRevelationType.AUTOMATICALLY);
+                    this.getRevealedCells().add(adjacentCell);
+                    this.getHiddenCells().remove(adjacentCell);
+                    this.setBoardState(this.getHiddenCells().isEmpty() ? MinesweeperBoardState.COMPLETED_WON : MinesweeperBoardState.RUNNING);
+                    this.getCellRevelationListeners().forEach(listener -> listener.cellRevealed(autoRevelation));
+                    if (autoRevelationMinesNearby == 0) {
+                        this.revealAdjacentCellsIfNoMines(adjacentCell);
+                    }
+                }
+            }
+        }
+    }
+
+    private int computeNumberOfNeighboringMinesAtPosition(MinesweeperCellPosition sourcePosition) {
+        int numberOfMinesNearby = 0;
+        for (MinesweeperCellPosition lookupPosition : this.computeAdjacentCellPositions(sourcePosition, true)) {
+            if (this.getCellArray()[lookupPosition.getY()][lookupPosition.getX()].isMined()) {
+                numberOfMinesNearby++;
+            }
+        }
+        return numberOfMinesNearby;
+    }
+
+    private List<MinesweeperCellPosition> computeAdjacentCellPositions(MinesweeperCellPosition sourcePosition, boolean includeCorners) {
+        List<MinesweeperCellPosition> resultPositions = new LinkedList<>();
+        int minX = Math.max(0, sourcePosition.getX() - 1);
+        int maxX = Math.min(this.getWidth() - 1, sourcePosition.getX() + 1);
+        int minY = Math.max(0, sourcePosition.getY() - 1);
+        int maxY = Math.min(this.getHeight() - 1, sourcePosition.getY() + 1);
+        for (int y = minY; y <= maxY; y++) {
+            for (int x = minX; x <= maxX; x++) {
+                if (y != sourcePosition.getY() || x != sourcePosition.getX()) {
+                    if (includeCorners || y == sourcePosition.getY() || x == sourcePosition.getX())  {
+                        resultPositions.add(new MinesweeperCellPosition(y, x));
+                    }
+                }
+            }
+        }
+        return resultPositions;
     }
 
     /**
@@ -88,6 +194,16 @@ public class MinesweeperBoard {
     }
     private void setWidth(int width) {
         this.width = width;
+    }
+
+    /**
+     * Gets the total number of mines on the board
+     */
+    public int getNumberOfMines() {
+        return this.numberOfMines;
+    }
+    private void setNumberOfMines(int numberOfMines) {
+        this.numberOfMines = numberOfMines;
     }
 
     /**
@@ -122,19 +238,19 @@ public class MinesweeperBoard {
     }
 
     /**
-     * Gets the cell that was hit by the user and contains a bomb
+     * Gets the current state of the board
      */
-    public MinesweeperCell getHitCell() {
-        return this.hitCell;
+    public MinesweeperBoardState getBoardState() {
+        return this.boardState;
     }
-    void setHitCell(MinesweeperCell hitCell) {
-        this.hitCell = hitCell;
+    void setBoardState(MinesweeperBoardState boardState) {
+        this.boardState = boardState;
     }
 
     MinesweeperCellRevelation[][] getCellRevelationArray() {
         return this.cellRevelationArray;
     }
-    void setCellRevelationArray(MinesweeperCellRevelation[][] cellRevelationArray) {
+    private void setCellRevelationArray(MinesweeperCellRevelation[][] cellRevelationArray) {
         this.cellRevelationArray = cellRevelationArray;
     }
 

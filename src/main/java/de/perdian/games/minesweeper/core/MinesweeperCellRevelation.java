@@ -1,43 +1,51 @@
 package de.perdian.games.minesweeper.core;
 
-import java.util.List;
-
 public class MinesweeperCellRevelation {
 
-    private MinesweeperBoardState boardState = null;
-    private MinesweeperCell touchedCell = null;
-    private List<MinesweeperCell> automaticallyRevealedCells = null;
-    private int neighboringBombs = 0;
+    private MinesweeperBoard board = null;
+    private MinesweeperCell revealedCell = null;
+    private MinesweeperCellRevelationType revelationType = null;
+    private boolean mined = false;
+    private int neighboringMines = 0;
 
-    MinesweeperCellRevelation() {
-    }
-
-    public MinesweeperBoardState getBoardState() {
-        return this.boardState;
-    }
-    void setBoardState(MinesweeperBoardState boardState) {
-        this.boardState = boardState;
+    MinesweeperCellRevelation(MinesweeperBoard board, MinesweeperCell revealedCell) {
+        this.setBoard(board);
+        this.setRevealedCell(revealedCell);
     }
 
-    public MinesweeperCell getTouchedCell() {
-        return this.touchedCell;
+    public MinesweeperBoard getBoard() {
+        return this.board;
     }
-    void setTouchedCell(MinesweeperCell touchedCell) {
-        this.touchedCell = touchedCell;
-    }
-
-    public List<MinesweeperCell> getAutomaticallyRevealedCells() {
-        return this.automaticallyRevealedCells;
-    }
-    void setAutomaticallyRevealedCells(List<MinesweeperCell> automaticallyRevealedCells) {
-        this.automaticallyRevealedCells = automaticallyRevealedCells;
+    private void setBoard(MinesweeperBoard board) {
+        this.board = board;
     }
 
-    public int getNeighboringBombs() {
-        return this.neighboringBombs;
+    public MinesweeperCell getRevealedCell() {
+        return this.revealedCell;
     }
-    void setNeighboringBombs(int neighboringBombs) {
-        this.neighboringBombs = neighboringBombs;
+    private void setRevealedCell(MinesweeperCell revealedCell) {
+        this.revealedCell = revealedCell;
+    }
+
+    public MinesweeperCellRevelationType getRevelationType() {
+        return this.revelationType;
+    }
+    void setRevelationType(MinesweeperCellRevelationType revelationType) {
+        this.revelationType = revelationType;
+    }
+
+    public boolean isMined() {
+        return this.mined;
+    }
+    void setMined(boolean mined) {
+        this.mined = mined;
+    }
+
+    public int getNeighboringMines() {
+        return this.neighboringMines;
+    }
+    void setNeighboringMines(int neighboringMines) {
+        this.neighboringMines = neighboringMines;
     }
 
 }

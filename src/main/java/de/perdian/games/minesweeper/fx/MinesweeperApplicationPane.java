@@ -2,6 +2,7 @@ package de.perdian.games.minesweeper.fx;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import de.perdian.games.minesweeper.core.MinesweeperBoard;
 import de.perdian.games.minesweeper.core.MinesweeperBoardBuilder;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
@@ -91,17 +92,22 @@ class MinesweeperApplicationPane extends BorderPane {
             boardBuilder.setWidth(this.getBoardWidth().getValue());
             boardBuilder.setNumberOfBombs(this.getNumberOfBombs().getValue());
 
-            MinesweeperBoardPane boardPane = new MinesweeperBoardPane(boardBuilder.build());
-            boardPane.setPadding(new Insets(4, 4, 4, 4));
+            MinesweeperBoard board = boardBuilder.build();
             String boardTitle = "Minesweeper (" + this.getBoardWidth().getValue() + "x" + this.getBoardHeight().getValue() + " cells, " + this.getNumberOfBombs().getValue() + " bombs)";
-            TitledPane boardPaneWrapper = new TitledPane(boardTitle, boardPane);
+            Label boardPaneLoadingLabel = new Label("Preparing new game...");
+            TitledPane boardPaneWrapper = new TitledPane(boardTitle, boardPaneLoadingLabel);
             boardPaneWrapper.setCollapsible(false);
             boardPaneWrapper.setMaxHeight(Double.MAX_VALUE);
             BorderPane.setMargin(boardPaneWrapper, new Insets(4, 0, 0, 0));
+            this.setCenter(boardPaneWrapper);
 
-            Platform.runLater(() -> {
-                this.setCenter(boardPaneWrapper);
-            });
+            new Thread(() -> {
+                MinesweeperBoardPane boardPane = new MinesweeperBoardPane(board);
+                boardPane.setPadding(new Insets(4, 4, 4, 4));
+                Platform.runLater(() -> {
+                    boardPaneWrapper.setContent(boardPane);
+                });
+            }).start();
 
         } catch (Exception e) {
 

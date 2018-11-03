@@ -11,14 +11,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class MinesweeperCell {
 
-    private int y = 0;
-    private int x = 0;
-    private boolean bomb = false;
+    private Object owner = null;
+    private MinesweeperCellPosition position = null;
+    private boolean mined = false;
 
-    MinesweeperCell(int y, int x, boolean bomb) {
-        this.setY(y);
-        this.setX(x);
-        this.setBomb(bomb);
+    MinesweeperCell(Object owner, MinesweeperCellPosition position, boolean mined) {
+        this.setOwner(owner);
+        this.setPosition(position);
+        this.setMined(mined);
     }
 
     @Override
@@ -27,8 +27,8 @@ public class MinesweeperCell {
             return true;
         } else if (that instanceof MinesweeperCell) {
             EqualsBuilder equalsBuilder = new EqualsBuilder();
-            equalsBuilder.append(this.getX(), ((MinesweeperCell)that).getX());
-            equalsBuilder.append(this.getY(), ((MinesweeperCell)that).getY());
+            equalsBuilder.append(this.getOwner(), ((MinesweeperCell)that).getOwner());
+            equalsBuilder.append(this.getPosition(), ((MinesweeperCell)that).getPosition());
             return equalsBuilder.isEquals();
         } else {
             return false;
@@ -38,30 +38,30 @@ public class MinesweeperCell {
     @Override
     public int hashCode() {
         HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
-        hashCodeBuilder.append(this.getX());
-        hashCodeBuilder.append(this.getY());
+        hashCodeBuilder.append(this.getOwner());
+        hashCodeBuilder.append(this.getPosition());
         return hashCodeBuilder.toHashCode();
     }
 
-    public int getY() {
-        return this.y;
+    private Object getOwner() {
+        return this.owner;
     }
-    private void setY(int y) {
-        this.y = y;
-    }
-
-    public int getX() {
-        return this.x;
-    }
-    private void setX(int x) {
-        this.x = x;
+    private void setOwner(Object owner) {
+        this.owner = owner;
     }
 
-    boolean isBomb() {
-        return this.bomb;
+    public MinesweeperCellPosition getPosition() {
+        return this.position;
     }
-    private void setBomb(boolean bomb) {
-        this.bomb = bomb;
+    private void setPosition(MinesweeperCellPosition position) {
+        this.position = position;
+    }
+
+    boolean isMined() {
+        return this.mined;
+    }
+    private void setMined(boolean mined) {
+        this.mined = mined;
     }
 
 }

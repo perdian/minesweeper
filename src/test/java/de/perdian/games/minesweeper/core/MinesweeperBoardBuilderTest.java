@@ -25,11 +25,11 @@ public class MinesweeperBoardBuilderTest {
             for (int row = 0; row < 10; row++) {
                 for (int column = 0; column < 20; column++) {
                     MinesweeperCell cell = board.getCellArray()[row][column];
-                    if (cell.isBomb()) {
+                    if (cell.isMined()) {
                         countedNumberOfBombs++;
                     }
-                    Assertions.assertEquals(row, cell.getY());
-                    Assertions.assertEquals(column, cell.getX());
+                    Assertions.assertEquals(row, cell.getPosition().getY());
+                    Assertions.assertEquals(column, cell.getPosition().getX());
                 }
             }
             Assertions.assertEquals(50, countedNumberOfBombs);

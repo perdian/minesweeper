@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -35,16 +36,18 @@ public class MinesweeperBoardBuilder {
 
             Set<MinesweeperCell> cells = new HashSet<>();
             MinesweeperCell[][] cellArray = new MinesweeperCell[this.getHeight()][this.getWidth()];
+            UUID ownerId = UUID.randomUUID();
             for (int row=0; row < this.getHeight(); row++) {
                 for (int column=0; column < this.getWidth(); column++) {
-                    MinesweeperCell cell = new MinesweeperCell(row, column, bombBooleans.get((row * this.getWidth()) + column));
+                    MinesweeperCellPosition cellPosition = new MinesweeperCellPosition(row, column);
+                    MinesweeperCell cell = new MinesweeperCell(ownerId, cellPosition, bombBooleans.get((row * this.getWidth()) + column));
                     cellArray[row][column] = cell;
                     cells.add(cell);
                 }
             }
 
             log.info("Created board with {} columns and {} rows containing {} bombs", this.getWidth(), this.getHeight(), this.getNumberOfBombs());
-            MinesweeperBoard minesweeperBoard = new MinesweeperBoard(this.getHeight(), this.getWidth());
+            MinesweeperBoard minesweeperBoard = new MinesweeperBoard(this.getHeight(), this.getWidth(), this.getNumberOfBombs());
             minesweeperBoard.setCellArray(cellArray);
             minesweeperBoard.setHiddenCells(cells);
             minesweeperBoard.setRevealedCells(new ArrayList<>());
