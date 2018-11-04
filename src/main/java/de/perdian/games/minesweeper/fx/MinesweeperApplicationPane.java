@@ -45,7 +45,7 @@ class MinesweeperApplicationPane extends BorderPane {
         boardRowsField.setText("8");
         GridPane.setHgrow(boardRowsField, Priority.ALWAYS);
 
-        Label boardMinesLabel = new Label("Number of bombs");
+        Label boardMinesLabel = new Label("Number of mines");
         TextField boardMinesField = new TextField("1");
         boardMinesField.textProperty().addListener((o, oldValue, newValue) -> this.getBoardMines().setValue(Integer.parseInt(newValue)));
         boardMinesField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(1, 100, 1)));
@@ -93,7 +93,7 @@ class MinesweeperApplicationPane extends BorderPane {
             boardBuilder.setMines(this.getBoardMines().getValue());
 
             MinesweeperBoard board = boardBuilder.build();
-            String boardTitle = "Minesweeper (" + this.getBoardColumns().getValue() + "x" + this.getBoardRows().getValue() + " cells, " + this.getBoardMines().getValue() + " bombs)";
+            String boardTitle = "Minesweeper (" + this.getBoardColumns().getValue() + "x" + this.getBoardRows().getValue() + " cells, " + this.getBoardMines().getValue() + " mines)";
             Label boardPaneLoadingLabel = new Label("Preparing new game...");
             TitledPane boardPaneWrapper = new TitledPane(boardTitle, boardPaneLoadingLabel);
             boardPaneWrapper.setCollapsible(false);

@@ -41,8 +41,8 @@ public class MinesweeperBoard {
      * Reveal the underside of a cell
      */
     public synchronized MinesweeperCellRevelation reveal(MinesweeperCellPosition cellPosition) {
-        if (MinesweeperBoardState.COMPLETED_BOMB_HIT.equals(this.getBoardState())) {
-            throw new IllegalStateException("Bomb has been hit, the game is over!");
+        if (MinesweeperBoardState.COMPLETED_MINE_HIT.equals(this.getBoardState())) {
+            throw new IllegalStateException("Mine has been hit, the game is over!");
         } else if (MinesweeperBoardState.COMPLETED_WON.equals(this.getBoardState())) {
             throw new IllegalStateException("All cells have been revealed, the game is over!");
         } else if (this.getCellsRevealed().containsKey(cellPosition)) {
@@ -79,7 +79,7 @@ public class MinesweeperBoard {
         this.getCellRevelationListeners().forEach(listener -> listener.cellRevealed(cellRevelation));
 
         if (MinesweeperCellRevelationType.MANUALLY.equals(cellRevelationType)) {
-            this.setBoardState(MinesweeperBoardState.COMPLETED_BOMB_HIT);
+            this.setBoardState(MinesweeperBoardState.COMPLETED_MINE_HIT);
             for (MinesweeperCell unrevealedCell : new ArrayList<>(this.getCellsClosed().values())) {
                 this.revealCell(unrevealedCell, MinesweeperCellRevelationType.GAME_ENDED);
             }

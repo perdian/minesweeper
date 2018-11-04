@@ -21,18 +21,18 @@ public class MinesweeperBoardBuilderTest {
             Assertions.assertEquals(10, board.getRows());
             Assertions.assertEquals(20, board.getColumns());
 
-            int countedNumberOfBombs = 0;
+            int countedNumberOfMines = 0;
             for (int row = 0; row < 10; row++) {
                 for (int column = 0; column < 20; column++) {
                     MinesweeperCell cell = board.getCells().get(new MinesweeperCellPosition(row, column));
                     if (cell.isMined()) {
-                        countedNumberOfBombs++;
+                        countedNumberOfMines++;
                     }
                     Assertions.assertEquals(row, cell.getPosition().getY());
                     Assertions.assertEquals(column, cell.getPosition().getX());
                 }
             }
-            Assertions.assertEquals(50, countedNumberOfBombs);
+            Assertions.assertEquals(50, countedNumberOfMines);
 
         }
 
@@ -57,7 +57,7 @@ public class MinesweeperBoardBuilderTest {
             }
 
             @Test
-            public void numberOfBombsToSmall() {
+            public void numberOfMinesToSmall() {
                 Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setMines(0));
                 Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setMines(-1));
             }
@@ -86,7 +86,7 @@ public class MinesweeperBoardBuilderTest {
             }
 
             @Test
-            public void numberOfBombsTooLarge() {
+            public void numberOfMinesTooLarge() {
                 MinesweeperBoardBuilder boardBuilder = new MinesweeperBoardBuilder();
                 boardBuilder.setColumns(10);
                 boardBuilder.setRows(10);

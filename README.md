@@ -2,7 +2,7 @@
 
 Minesweeper clone programmed in Java 10 using JavaFX as frontend.
 
-I just wanted to keep practicing and prepare a reference for future experimenrts in other languages.
+I just wanted to keep practicing and prepare a reference for future experiments in other languages.
 
 ![Screenshot](docs/screenshot.jpg)
 

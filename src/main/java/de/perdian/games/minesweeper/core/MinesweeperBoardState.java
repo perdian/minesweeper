@@ -4,6 +4,6 @@ public enum MinesweeperBoardState {
 
     RUNNING,
     COMPLETED_WON,
-    COMPLETED_BOMB_HIT;
+    COMPLETED_MINE_HIT;
 
 }
