@@ -2,6 +2,7 @@ package de.perdian.games.minesweeper.fx;
 
 import de.perdian.games.minesweeper.core.MinesweeperBoard;
 import de.perdian.games.minesweeper.core.MinesweeperBoardState;
+import de.perdian.games.minesweeper.core.MinesweeperCellPosition;
 import de.perdian.games.minesweeper.core.MinesweeperCellRevelation;
 import de.perdian.games.minesweeper.core.MinesweeperCellRevelationListener;
 import de.perdian.games.minesweeper.core.MinesweeperCellRevelationType;
@@ -24,17 +25,16 @@ class MinesweeperBoardPane extends BorderPane implements MinesweeperCellRevelati
         board.addCellRevelationListener(this);
 
         GridPane cellsPane = new GridPane();
-        Button[][] buttonArray = new Button[board.getHeight()][board.getWidth()];
-        for (int y = 0; y < board.getHeight(); y++) {
-            for (int x = 0; x < board.getWidth(); x++) {
-                int xIndex = x;
-                int yIndex = y;
+        Button[][] buttonArray = new Button[board.getRows()][board.getColumns()];
+        for (int y = 0; y < board.getRows(); y++) {
+            for (int x = 0; x < board.getColumns(); x++) {
+                MinesweeperCellPosition cellPosition = new MinesweeperCellPosition(y, x);
                 Button cellButton = new Button("?");
                 cellButton.setFocusTraversable(false);
                 cellButton.setMinSize(25, 25);
                 cellButton.setPrefSize(35, 35);
-                cellButton.setOnAction(event -> this.revealCell(cellButton, board, xIndex, yIndex));
-                cellsPane.add(cellButton, xIndex, yIndex, 1, 1);
+                cellButton.setOnAction(event -> this.revealCell(cellButton, board, cellPosition));
+                cellsPane.add(cellButton, x, y, 1, 1);
                 buttonArray[y][x] = cellButton;
             }
         }
@@ -48,14 +48,14 @@ class MinesweeperBoardPane extends BorderPane implements MinesweeperCellRevelati
 
     }
 
-    private void revealCell(Button sourceButton, MinesweeperBoard board, int x, int y) {
+    private void revealCell(Button sourceButton, MinesweeperBoard board, MinesweeperCellPosition cellPosition) {
         synchronized (this.getUserInputMonitor()) {
             if (this.isUserInputActive()) {
                 this.setUserInputActive(false);
                 sourceButton.setDisable(true);
                 new Thread(() -> {
                     try {
-                        board.reveal(x, y);
+                        board.reveal(cellPosition);
                         this.setGameFinished(!MinesweeperBoardState.RUNNING.equals(board.getBoardState()));
                     } finally {
                         synchronized (this.getUserInputMonitor()) {

@@ -2,22 +2,13 @@ package de.perdian.games.minesweeper.core;
 
 public class MinesweeperCellRevelation {
 
-    private MinesweeperBoard board = null;
     private MinesweeperCell revealedCell = null;
     private MinesweeperCellRevelationType revelationType = null;
     private boolean mined = false;
     private int neighboringMines = 0;
 
-    MinesweeperCellRevelation(MinesweeperBoard board, MinesweeperCell revealedCell) {
-        this.setBoard(board);
+    MinesweeperCellRevelation(MinesweeperCell revealedCell) {
         this.setRevealedCell(revealedCell);
-    }
-
-    public MinesweeperBoard getBoard() {
-        return this.board;
-    }
-    private void setBoard(MinesweeperBoard board) {
-        this.board = board;
     }
 
     public MinesweeperCell getRevealedCell() {

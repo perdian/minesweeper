@@ -13,18 +13,18 @@ public class MinesweeperBoardBuilderTest {
         public void build() {
 
             MinesweeperBoardBuilder boardBuilder = new MinesweeperBoardBuilder();
-            boardBuilder.setWidth(20);
-            boardBuilder.setHeight(10);
-            boardBuilder.setNumberOfBombs(50);
+            boardBuilder.setRows(10);
+            boardBuilder.setColumns(20);
+            boardBuilder.setMines(50);
 
             MinesweeperBoard board = boardBuilder.build();
-            Assertions.assertEquals(20, board.getWidth());
-            Assertions.assertEquals(10, board.getHeight());
+            Assertions.assertEquals(10, board.getRows());
+            Assertions.assertEquals(20, board.getColumns());
 
             int countedNumberOfBombs = 0;
             for (int row = 0; row < 10; row++) {
                 for (int column = 0; column < 20; column++) {
-                    MinesweeperCell cell = board.getCellArray()[row][column];
+                    MinesweeperCell cell = board.getCells().get(new MinesweeperCellPosition(row, column));
                     if (cell.isMined()) {
                         countedNumberOfBombs++;
                     }
@@ -46,20 +46,20 @@ public class MinesweeperBoardBuilderTest {
 
             @Test
             public void widthToSmall() {
-                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setWidth(0));
-                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setWidth(-1));
+                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setColumns(0));
+                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setColumns(-1));
             }
 
             @Test
             public void heightToSmall() {
-                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setHeight(0));
-                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setHeight(-1));
+                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setRows(0));
+                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setRows(-1));
             }
 
             @Test
             public void numberOfBombsToSmall() {
-                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setNumberOfBombs(0));
-                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setNumberOfBombs(-1));
+                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setMines(0));
+                Assertions.assertThrows(IllegalArgumentException.class, () -> new MinesweeperBoardBuilder().setMines(-1));
             }
 
         }
@@ -70,27 +70,27 @@ public class MinesweeperBoardBuilderTest {
             @Test
             public void widthToSmall() {
                 MinesweeperBoardBuilder boardBuilder = new MinesweeperBoardBuilder();
-                boardBuilder.setWidth(7);
-                boardBuilder.setHeight(10);
-                boardBuilder.setNumberOfBombs(50);
+                boardBuilder.setColumns(7);
+                boardBuilder.setRows(10);
+                boardBuilder.setMines(50);
                 Assertions.assertThrows(IllegalArgumentException.class, () -> boardBuilder.build());
             }
 
             @Test
             public void heightToSmall() {
                 MinesweeperBoardBuilder boardBuilder = new MinesweeperBoardBuilder();
-                boardBuilder.setWidth(10);
-                boardBuilder.setHeight(7);
-                boardBuilder.setNumberOfBombs(50);
+                boardBuilder.setColumns(10);
+                boardBuilder.setRows(7);
+                boardBuilder.setMines(50);
                 Assertions.assertThrows(IllegalArgumentException.class, () -> boardBuilder.build());
             }
 
             @Test
             public void numberOfBombsTooLarge() {
                 MinesweeperBoardBuilder boardBuilder = new MinesweeperBoardBuilder();
-                boardBuilder.setWidth(10);
-                boardBuilder.setHeight(10);
-                boardBuilder.setNumberOfBombs(100);
+                boardBuilder.setColumns(10);
+                boardBuilder.setRows(10);
+                boardBuilder.setMines(100);
                 Assertions.assertThrows(IllegalArgumentException.class, () -> boardBuilder.build());
             }
 

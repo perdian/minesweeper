@@ -25,32 +25,32 @@ import javafx.util.StringConverter;
 
 class MinesweeperApplicationPane extends BorderPane {
 
-    private IntegerProperty boardWidth = new SimpleIntegerProperty();
-    private IntegerProperty boardHeight = new SimpleIntegerProperty();
-    private IntegerProperty numberOfBombs = new SimpleIntegerProperty();
+    private IntegerProperty boardColumns = new SimpleIntegerProperty();
+    private IntegerProperty boardRows = new SimpleIntegerProperty();
+    private IntegerProperty boardMines = new SimpleIntegerProperty();
 
     MinesweeperApplicationPane() {
 
-        Label boardWidthLabel = new Label("Board width");
-        TextField boardWidthField = new TextField();
-        boardWidthField.textProperty().addListener((o, oldValue, newValue) -> this.getBoardWidth().setValue(Integer.parseInt(newValue)));
-        boardWidthField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(8, 100, 8)));
-        boardWidthField.setText("8");
-        GridPane.setHgrow(boardWidthField, Priority.ALWAYS);
+        Label boardColumnsLabel = new Label("Board width");
+        TextField boardColumnsField = new TextField();
+        boardColumnsField.textProperty().addListener((o, oldValue, newValue) -> this.getBoardColumns().setValue(Integer.parseInt(newValue)));
+        boardColumnsField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(8, 100, 8)));
+        boardColumnsField.setText("8");
+        GridPane.setHgrow(boardColumnsField, Priority.ALWAYS);
 
-        Label boardHeightLabel = new Label("Board height");
-        TextField boardHeightField = new TextField();
-        boardHeightField.textProperty().addListener((o, oldValue, newValue) -> this.getBoardHeight().setValue(Integer.parseInt(newValue)));
-        boardHeightField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(8, 100, 8)));
-        boardHeightField.setText("8");
-        GridPane.setHgrow(boardHeightField, Priority.ALWAYS);
+        Label boardRowsLabel = new Label("Board height");
+        TextField boardRowsField = new TextField();
+        boardRowsField.textProperty().addListener((o, oldValue, newValue) -> this.getBoardRows().setValue(Integer.parseInt(newValue)));
+        boardRowsField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(8, 100, 8)));
+        boardRowsField.setText("8");
+        GridPane.setHgrow(boardRowsField, Priority.ALWAYS);
 
-        Label numberOfBombsLabel = new Label("Number of bombs");
-        TextField numberOfBombsField = new TextField("1");
-        numberOfBombsField.textProperty().addListener((o, oldValue, newValue) -> this.getNumberOfBombs().setValue(Integer.parseInt(newValue)));
-        numberOfBombsField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(1, 100, 1)));
-        numberOfBombsField.setText("10");
-        GridPane.setHgrow(numberOfBombsField, Priority.ALWAYS);
+        Label boardMinesLabel = new Label("Number of bombs");
+        TextField boardMinesField = new TextField("1");
+        boardMinesField.textProperty().addListener((o, oldValue, newValue) -> this.getBoardMines().setValue(Integer.parseInt(newValue)));
+        boardMinesField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(1, 100, 1)));
+        boardMinesField.setText("10");
+        GridPane.setHgrow(boardMinesField, Priority.ALWAYS);
 
         Button executeButton = new Button("Start new game");
         executeButton.setOnAction(event -> this.createBoard());
@@ -61,12 +61,12 @@ class MinesweeperApplicationPane extends BorderPane {
         topPane.setHgap(4);
         topPane.setVgap(2);
         topPane.setPadding(new Insets(6, 6, 6, 6));
-        topPane.add(boardWidthLabel, 0, 0, 1, 1);
-        topPane.add(boardHeightLabel, 1, 0, 1, 1);
-        topPane.add(numberOfBombsLabel, 2, 0, 1, 1);
-        topPane.add(boardWidthField, 0, 1, 1, 1);
-        topPane.add(boardHeightField, 1, 1, 1, 1);
-        topPane.add(numberOfBombsField, 2, 1, 1, 1);
+        topPane.add(boardColumnsLabel, 0, 0, 1, 1);
+        topPane.add(boardRowsLabel, 1, 0, 1, 1);
+        topPane.add(boardMinesLabel, 2, 0, 1, 1);
+        topPane.add(boardColumnsField, 0, 1, 1, 1);
+        topPane.add(boardRowsField, 1, 1, 1, 1);
+        topPane.add(boardMinesField, 2, 1, 1, 1);
         topPane.add(executeButton, 3, 0, 1, 2);
 
         TitledPane topPaneWrapper = new TitledPane("Game settings", topPane);
@@ -88,12 +88,12 @@ class MinesweeperApplicationPane extends BorderPane {
         try {
 
             MinesweeperBoardBuilder boardBuilder = new MinesweeperBoardBuilder();
-            boardBuilder.setHeight(this.getBoardHeight().getValue());
-            boardBuilder.setWidth(this.getBoardWidth().getValue());
-            boardBuilder.setNumberOfBombs(this.getNumberOfBombs().getValue());
+            boardBuilder.setRows(this.getBoardRows().getValue());
+            boardBuilder.setColumns(this.getBoardColumns().getValue());
+            boardBuilder.setMines(this.getBoardMines().getValue());
 
             MinesweeperBoard board = boardBuilder.build();
-            String boardTitle = "Minesweeper (" + this.getBoardWidth().getValue() + "x" + this.getBoardHeight().getValue() + " cells, " + this.getNumberOfBombs().getValue() + " bombs)";
+            String boardTitle = "Minesweeper (" + this.getBoardColumns().getValue() + "x" + this.getBoardRows().getValue() + " cells, " + this.getBoardMines().getValue() + " bombs)";
             Label boardPaneLoadingLabel = new Label("Preparing new game...");
             TitledPane boardPaneWrapper = new TitledPane(boardTitle, boardPaneLoadingLabel);
             boardPaneWrapper.setCollapsible(false);
@@ -190,16 +190,16 @@ class MinesweeperApplicationPane extends BorderPane {
 
     }
 
-    private IntegerProperty getBoardWidth() {
-        return this.boardWidth;
+    private IntegerProperty getBoardColumns() {
+        return this.boardColumns;
     }
 
-    private IntegerProperty getBoardHeight() {
-        return this.boardHeight;
+    private IntegerProperty getBoardRows() {
+        return this.boardRows;
     }
 
-    private IntegerProperty getNumberOfBombs() {
-        return this.numberOfBombs;
+    private IntegerProperty getBoardMines() {
+        return this.boardMines;
     }
 
 }

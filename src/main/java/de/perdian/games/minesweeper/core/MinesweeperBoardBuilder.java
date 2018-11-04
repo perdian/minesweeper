@@ -1,12 +1,11 @@
 package de.perdian.games.minesweeper.core;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -18,74 +17,68 @@ public class MinesweeperBoardBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(MinesweeperBoardBuilder.class);
 
-    private int height = 8;
-    private int width = 8;
-    private int numberOfBombs = 10;
+    private int rows = 8;
+    private int columns = 8;
+    private int mines = 10;
     private Random random = new SecureRandom();
 
     public MinesweeperBoard build() {
-        if (this.getWidth() < 8 || this.getHeight() < 8) {
+        if (this.getRows() < 8 || this.getColumns() < 8) {
             throw new IllegalArgumentException("Minesweeper board must have at least 8x8 cells");
-        } else if (this.getNumberOfBombs() >= (this.getWidth() * this.getHeight())) {
-            throw new IllegalArgumentException("Minesweeper board must have at least one cell without bombs");
+        } else if (this.getMines() >= (this.getRows() * this.getColumns())) {
+            throw new IllegalArgumentException("Minesweeper board must have at least one cell without mines");
         } else {
 
-            log.debug("Creating board with {} columns and {} rows containing {} bombs", this.getWidth(), this.getHeight(), this.getNumberOfBombs());
-            List<Boolean> bombBooleans = IntStream.range(0, this.getWidth() * this.getHeight()).mapToObj(value -> value < this.getNumberOfBombs()).collect(Collectors.toList());
-            Collections.shuffle(bombBooleans, this.getRandom());
+            log.debug("Creating board with {} rows and {} columns containing {} mines", this.getRows(), this.getColumns(), this.getMines());
+            List<Boolean> mineBooleans = IntStream.range(0, this.getRows() * this.getColumns()).mapToObj(value -> value < this.getMines()).collect(Collectors.toList());
+            Collections.shuffle(mineBooleans, this.getRandom());
 
-            Set<MinesweeperCell> cells = new HashSet<>();
-            MinesweeperCell[][] cellArray = new MinesweeperCell[this.getHeight()][this.getWidth()];
+            Map<MinesweeperCellPosition, MinesweeperCell> cells = new LinkedHashMap<>();
             UUID ownerId = UUID.randomUUID();
-            for (int row=0; row < this.getHeight(); row++) {
-                for (int column=0; column < this.getWidth(); column++) {
+            for (int row=0; row < this.getRows(); row++) {
+                for (int column=0; column < this.getColumns(); column++) {
                     MinesweeperCellPosition cellPosition = new MinesweeperCellPosition(row, column);
-                    MinesweeperCell cell = new MinesweeperCell(ownerId, cellPosition, bombBooleans.get((row * this.getWidth()) + column));
-                    cellArray[row][column] = cell;
-                    cells.add(cell);
+                    MinesweeperCell cell = new MinesweeperCell(ownerId, cellPosition, mineBooleans.get((row * this.getColumns()) + column));
+                    cells.put(cellPosition, cell);
                 }
             }
 
-            log.info("Created board with {} columns and {} rows containing {} bombs", this.getWidth(), this.getHeight(), this.getNumberOfBombs());
-            MinesweeperBoard minesweeperBoard = new MinesweeperBoard(this.getHeight(), this.getWidth(), this.getNumberOfBombs());
-            minesweeperBoard.setCellArray(cellArray);
-            minesweeperBoard.setHiddenCells(cells);
-            minesweeperBoard.setRevealedCells(new ArrayList<>());
-            return minesweeperBoard;
+            log.info("Created board with {} rows and {} columns containing {} mines", this.getRows(), this.getColumns(), this.getMines());
+            return new MinesweeperBoard(this.getRows(), this.getColumns(), this.getMines(), cells);
 
         }
     }
 
-    public int getHeight() {
-        return this.height;
+    public int getRows() {
+        return this.rows;
     }
-    public void setHeight(int height) {
-        if (height <= 0) {
-            throw new IllegalArgumentException("Property 'height' must be larger than zero");
+    public void setRows(int rows) {
+        if (rows<= 0) {
+            throw new IllegalArgumentException("Property 'rows' must be larger than zero");
         } else {
-            this.height = height;
+            this.rows = rows;
         }
     }
 
-    public int getWidth() {
-        return this.width;
+    public int getColumns() {
+        return this.columns;
     }
-    public void setWidth(int width) {
-        if (width <= 0) {
-            throw new IllegalArgumentException("Property 'width' must be larger than zero");
+    public void setColumns(int columns) {
+        if (columns<= 0) {
+            throw new IllegalArgumentException("Property 'columns' must be larger than zero");
         } else {
-            this.width = width;
+            this.columns = columns;
         }
     }
 
-    public int getNumberOfBombs() {
-        return this.numberOfBombs;
+    public int getMines() {
+        return this.mines;
     }
-    public void setNumberOfBombs(int numberOfBombs) {
-        if (numberOfBombs <= 0) {
-            throw new IllegalArgumentException("Property 'numberOfBombs' must be larger than zero");
+    public void setMines(int mines) {
+        if (mines <= 0) {
+            throw new IllegalArgumentException("Property 'mines' must be larger than zero");
         } else {
-            this.numberOfBombs = numberOfBombs;
+            this.mines = mines;
         }
     }
 
